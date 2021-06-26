@@ -1,5 +1,17 @@
 from typing import Any, List, Optional
 
+VERTICAL = '│'
+HORIZONTAL = '─'
+TOP_LEFT = '┌'
+TOP_SEPERATOR = '┬'
+TOP_RIGHT = '┐'
+SEPERATOR_LEFT = '├'
+SEPERATOR_MIDDLE = '┼'
+SEPERATOR_RIGHT = '┤'
+BOTTOM_LEFT = '└'
+BOTTOM_SEPERATOR = '┴'
+BOTTOM_RIGHT = '┘'
+
 
 def make_table(rows: List[List[Any]], labels: Optional[List[Any]] = None, centered: bool = False) -> str:
     """
@@ -9,4 +21,84 @@ def make_table(rows: List[List[Any]], labels: Optional[List[Any]] = None, center
     :param centered: If the items should be aligned to the center, else they are left aligned.
     :return: A table representing the rows passed in.
     """
-    ...
+
+    column_count = len(rows[0])
+
+    temp_rows = rows.copy()
+    if labels is not None:
+        temp_rows.append(labels)
+    column_width = get_column_size(column_count, temp_rows)
+
+    table_string = make_top_border(column_width) + '\n'
+    if labels is not None:
+        table_string += make_row(column_count, column_width, centered, labels) + '\n'
+        table_string += make_separator(column_width) + '\n'
+    for row in rows:
+        table_string += make_row(column_count, column_width, centered, row) + '\n'
+    table_string += make_bottom_border(column_width)
+
+    return table_string
+
+
+def get_column_size(column_count, rows):
+    column_size = [0 for i in range(column_count)]
+
+    for row in rows:
+        for i in range(column_count):
+            if len(str(row[i]).strip()) > column_size[i]:
+                column_size[i] = len(str(row[i]).strip())
+
+    return column_size
+
+
+def make_top_border(column_width: List[int]) -> str:
+    my_string = f'{TOP_LEFT}'
+    i_max = len(column_width)
+    for i in range(len(column_width)):
+        my_string += f'{(column_width[i] + 2) * HORIZONTAL}'
+        if i < i_max - 1:
+            my_string += f'{TOP_SEPERATOR}'
+        else:
+            my_string += f'{TOP_RIGHT}'
+    return my_string
+
+
+def make_bottom_border(column_width: List[int]) -> str:
+    my_string = f'{BOTTOM_LEFT}'
+    i_max = len(column_width)
+    for i in range(len(column_width)):
+        my_string += f'{(column_width[i] + 2) * HORIZONTAL}'
+        if i < i_max - 1:
+            my_string += f'{BOTTOM_SEPERATOR}'
+        else:
+            my_string += f'{BOTTOM_RIGHT}'
+    return my_string
+
+
+def make_separator(column_width: List[int]) -> str:
+    my_string = f'{SEPERATOR_LEFT}'
+    i_max = len(column_width)
+    for i in range(len(column_width)):
+        my_string += f'{(column_width[i] + 2) * HORIZONTAL}'
+        if i < i_max - 1:
+            my_string += f'{SEPERATOR_MIDDLE}'
+        else:
+            my_string += f'{SEPERATOR_RIGHT}'
+    return my_string
+
+
+def make_row(column_count, column_width, centered, row) -> str:
+    my_string = VERTICAL
+
+    if centered:
+        for i in range(column_count):
+            fill_count = column_width[i] - len(str(row[i]))
+            left_fill = int(fill_count / 2)
+            right_fill = fill_count - left_fill
+            my_string += f" {left_fill * ' '}{row[i]}{right_fill * ' '} {VERTICAL}"
+    else:
+        for i in range(column_count):
+            fill_count = column_width[i] - len(str(row[i]))
+            my_string += f" {row[i]}{fill_count * ' '} {VERTICAL}"
+
+    return my_string
