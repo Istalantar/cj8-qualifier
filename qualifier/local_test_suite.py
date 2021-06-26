@@ -455,7 +455,7 @@ class MakeTableTests(unittest.TestCase):
 
         if MakeTableTests.last_char is None:  # Allows for ending with newline return
             MakeTableTests.last_char = "\n" if result[-1] == "\n" else ""
-            
+
         if params.centered:
             if MakeTableTests.centering_strategy is None:
                 f_string, center = expected
@@ -467,7 +467,7 @@ class MakeTableTests(unittest.TestCase):
                     raise AssertionError("Table does not meet our centering requirements.")
             expected = expected[MakeTableTests.centering_strategy]
 
-        
+
 
         self.assertEqual(result, expected + MakeTableTests.last_char, msg=fail_msg)
 
